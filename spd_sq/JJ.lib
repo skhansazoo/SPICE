@@ -1,0 +1,56 @@
+** JJLibrary **
+
+.subckt JJ wj1 wj2
++I_c=90u R_tot=4 C_jj=102f L_rjs=0.01p phi0=0
++R_js={1/((1/R_tot)-(1/R_jsg))} V_g=2.6e-3
++R_jn={icrn/I_c} R_jsg={vm/I_c} icrn=1.65e-3 vm=16.5e-3
+
+*I_c is the critical current in units  of amps
+*R_tot is the total resistance including subgap resistance and shunt resistance in units of Ohm (R_jsg//R_js)
+*C_jj is the junction capacitance in units of F
+*L_rjs is the parasitic inductance of the resistive branch in units of H
+*R_js is the shunt resitance in units of Ohm (it is set to obtain (R_jsg//R_js) =  R_tot by default)
+*V_g is the gap voltage of the junction in units of V (set to the value of Nb Junctions by default)
+*R_jn is the normal reistance in units of Ohm (it depends on I_c)
+*R_jsg is the subgap reistance in units of Ohm (it depends on I_c)
+*icrn is the product of the normal resistance and the critical current (default value from MIT Lincoln Laboratory SFQ5EE process)
+*vm is the product of the subgap resistance and the critical current (default value from MIT Lincoln Laboratory SFQ5EE process)
+
+.PARAM C_jf=0.3291p
+*1000*Phi0/2pi
+
+*RJCL SUBCIRCUIT
+B§I_js wj2 wj1 I={I_c}*sin(1000*(V(wx2)-V(wx1)))
+*junction current
+C_jj wj2 wj1 {C_jj}
+R_js wj2 N001 {R_js}
+L_rjs N001 wj1 {L_rjs}
+
+B_Rj wj2 wj1 I=(V(wj2)-V(wj1))/if(abs(V(wj2)-V(wj1))<{V_g}, {R_jsg}, {R_jn})
+*subgap resitance if |V| < V_g, normal resistance if |V| >= V_g
+
+*electric connection the with the integrator subcircuit
+R wx1 wj1 1
+
+*INTEGRATOR SUBCIRCUIT
+B§I_jw wx1 wx2 I=V(wj2)-V(wj1)
+*Current source for integration
+C_jf wx2 wx1 {C_jf}
+*Capacitor to obtain phi=(2pi/Phi0)*idt(wj2-wj1)
+R1 wx2 wx1 100Meg
+*resistor to avoid floating potential on wx2
+
+.ic V(wx1)=0 V(wx2)={phi0/1000}
+*initial condition of the phase
+
+.ends JJ
+
+
+
+
+
+
+
+
+
+
