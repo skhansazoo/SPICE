@@ -1,0 +1,3 @@
+Circuit: * C:\Users\snk27\Documents\GitHub\SPICE_models\my SNSPD\nano_BCF.asc
+
+Fatal Error: This circuit does not contain a node other than node "0" (GND)
